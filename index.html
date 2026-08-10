@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Macro Scorecard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+  html, body { margin: 0; padding: 0; background: #000; }
+  * { box-sizing: border-box; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" data-presets="react">
+const { useState, useMemo, useCallback, useEffect } = React;
+
+// This is your live backend — already connected.
+const BACKEND_URL = "https://aether-teezee1.vercel.app";
+const LIVE_ASSETS = ["XAUUSD", "XAGUSD", "USOIL", "DXY"];
+
+const GROUPS = ["METALS", "COMMODITIES", "COINS", "FOREX"];
+
+const ASSETS = {
+  XAUUSD: {
+    label: "XAUUSD", name: "Gold Spot", group: "METALS",
+    categories: {
+      Technicals: [
+        { name: "4H / Daily Chart Trend", signal: "Bullish" },
+        { name: "Seasonality Trend", signal: "Bullish" },
+      ],
+      "Institutional Activity": [
+        { name: "COT — Net Positioning", signal: "Bullish", detail: "Long 85.4% / Short 14.6%" },
+        { name: "COT — Latest Buys/Sells", signal: "Bullish", detail: "+0.78% change" },
+      ],
+      "Economic Growth": [
+        { name: "GDP Growth QoQ", signal: "Bullish", detail: "1.50% vs 2.10% forecast" },
+        { name: "Manufacturing PMI", signal: "Bearish", detail: "55.6 vs 54 forecast" },
+        { name: "Consumer Confidence", signal: "Bullish", detail: "90.8 vs 92.4 forecast" },
+      ],
+      Inflation: [
+        { name: "CPI YoY", signal: "Bullish", detail: "3.5% vs 3.8% forecast" },
+        { name: "2Yr Yield (21d SMA)", signal: "Bearish", detail: "Rising — hawkish" },
+      ],
+      "Jobs Market": [
+        { name: "Non-Farm Payroll", signal: "Bullish", detail: "57k vs 114k forecast" },
+        { name: "Unemployment Rate %", signal: "Bearish", detail: "4.20% vs 4.30% forecast" },
+      ],
+    },
+  },
+  XAGUSD: {
+    label: "XAGUSD", name: "Silver / U.S. Dollar", group: "METALS",
+    categories: {
+      Technicals: [
+        { name: "4H / Daily Chart Trend", signal: "Bullish" },
+        { name: "Gold/Silver Ratio", signal: "Bullish", detail: "Ratio falling — silver outperforming" },
+      ],
+      "Institutional Activity": [
+        { name: "COT — Net Positioning", signal: "Bullish", detail: "Long 78% / Short 22%" },
+        { name: "Industrial Demand Flow", signal: "Neutral" },
+      ],
+      "Economic Growth": [
+        { name: "Manufacturing PMI", signal: "Bearish", detail: "55.6 vs 54 forecast" },
+        { name: "Global Industrial Output", signal: "Bullish" },
+      ],
+      Inflation: [
+        { name: "CPI YoY", signal: "Bullish", detail: "3.5% vs 3.8% forecast" },
+        { name: "Real Yields", signal: "Bearish", detail: "Rising — headwind for metals" },
+      ],
+      "Jobs Market": [
+        { name: "Non-Farm Payroll", signal: "Bullish", detail: "57k vs 114k forecast" },
+      ],
+    },
+  },
+  USOIL: {
+    label: "USOIL", name: "CFDs on Crude Oil (WTI)", group: "COMMODITIES",
+    categories: {
+      Technicals: [
+        { name: "4H / Daily Chart Trend", signal: "Bullish" },
+        { name: "Seasonality Trend", signal: "Neutral" },
+      ],
+      "Institutional Activity": [
+        { name: "COT — Managed Money Net Positioning", signal: "Bullish", detail: "Long 61% / Short 39%" },
+        { name: "OPEC+ Supply Signal", signal: "Bearish", detail: "Output hike flagged" },
+      ],
+      "Economic Growth": [
+        { name: "Global Manufacturing PMI", signal: "Bearish", detail: "55.6 vs 54 forecast" },
+        { name: "US GDP Growth QoQ", signal: "Bullish", detail: "1.50% vs 2.10% forecast" },
+      ],
+      Inflation: [
+        { name: "US CPI YoY", signal: "Bullish", detail: "3.5% vs 3.8% forecast" },
+        { name: "Crude Inventories (EIA)", signal: "Bullish", detail: "Draw vs forecast build" },
+      ],
+      "Jobs Market": [
+        { name: "US Non-Farm Payroll", signal: "Bullish", detail: "57k vs 114k forecast" },
+      ],
+    },
+  },
+  DXY: {
+    label: "DXY", name: "U.S. Dollar Currency Index", group: "COMMODITIES",
+    categories: {
+      Technicals: [
+        { name: "4H / Daily Chart Trend", signal: "Neutral" },
+        { name: "Seasonality Trend", signal: "Bearish" },
+      ],
+      "Institutional Activity": [
+        { name: "COT — USD Net Positioning", signal: "Bearish", detail: "Long 44% / Short 56%" },
+      ],
+      "Economic Growth": [
+        { name: "US GDP Growth QoQ", signal: "Bullish", detail: "1.50% vs 2.10% forecast" },
+        { name: "US Retail Sales MoM", signal: "Neutral", detail: "0.20% vs 0.20% forecast" },
+      ],
+      Inflation: [
+        { name: "US CPI YoY", signal: "Bullish", detail: "3.5% vs 3.8% forecast" },
+        { name: "2Yr Yield (21d SMA)", signal: "Bearish", detail: "Rising — hawkish" },
+      ],
+      "Jobs Market": [
+        { name: "US Non-Farm Payroll", signal: "Bullish", detail: "57k vs 114k forecast" },
+        { name: "Weekly Jobless Claims", signal: "Bearish", detail: "197k vs 200k forecast" },
+      ],
+    },
+  },
+  BTCUSD: {
+    label: "BTCUSD", name: "Bitcoin / U.S. Dollar", group: "COINS",
+    categories: {
+      Technicals: [
+        { name: "4H / Daily Chart Trend", signal: "Bearish" },
+        { name: "Seasonality Trend", signal: "Neutral" },
+      ],
+      "Institutional Activity": [
+        { name: "Spot ETF Netflow", signal: "Bullish", detail: "Net inflow this week" },
+        { name: "Exchange Netflow", signal: "Bullish", detail: "Net outflow — accumulation" },
+      ],
+      "Economic Growth": [
+        { name: "US GDP Growth QoQ", signal: "Bullish", detail: "1.50% vs 2.10% forecast" },
+        { name: "Risk Appetite (Equities)", signal: "Bearish" },
+      ],
+      Inflation: [
+        { name: "US CPI YoY", signal: "Bullish", detail: "3.5% vs 3.8% forecast" },
+        { name: "Real Yields", signal: "Bearish", detail: "Rising — headwind for BTC" },
+      ],
+      "Jobs Market": [
+        { name: "US Non-Farm Payroll", signal: "Bullish", detail: "57k vs 114k forecast" },
+      ],
+    },
+  },
+  ETHUSD: {
+    label: "ETHUSD", name: "Ethereum / U.S. Dollar", group: "COINS",
+    categories: {
+      Technicals: [
+        { name: "4H / Daily Chart Trend", signal: "Bearish" },
+        { name: "ETH/BTC Ratio", signal: "Bearish", detail: "Underperforming BTC" },
+      ],
+      "Institutional Activity": [
+        { name: "Spot ETF Netflow", signal: "Neutral" },
+        { name: "Staking Inflow", signal: "Bullish" },
+      ],
+      "Economic Growth": [
+        { name: "Risk Appetite (Equities)", signal: "Bearish" },
+        { name: "US GDP Growth QoQ", signal: "Bullish", detail: "1.50% vs 2.10% forecast" },
+      ],
+      Inflation: [
+        { name: "Real Yields", signal: "Bearish", detail: "Rising — headwind for ETH" },
+      ],
+      "Jobs Market": [
+        { name: "US Non-Farm Payroll", signal: "Bullish", detail: "57k vs 114k forecast" },
+      ],
+    },
+  },
+  "USDT.D": {
+    label: "USDT.D", name: "Market Cap USDT Dominance", group: "COINS",
+    categories: {
+      Technicals: [
+        { name: "4H / Daily Chart Trend", signal: "Bullish", detail: "Rising dominance — risk-off" },
+      ],
+      "Institutional Activity": [
+        { name: "Stablecoin Exchange Inflow", signal: "Bullish", detail: "Cash sitting on sidelines" },
+      ],
+      "Economic Growth": [
+        { name: "Risk Appetite (Equities)", signal: "Bearish" },
+      ],
+      Inflation: [
+        { name: "Real Yields", signal: "Bearish", detail: "Rising — favors cash/stables" },
+      ],
+      "Jobs Market": [
+        { name: "US Non-Farm Payroll", signal: "Neutral" },
+      ],
+    },
+  },
+  GBPAUD: {
+    label: "GBPAUD", name: "British Pound / Australian Dollar", group: "FOREX",
+    categories: {
+      Technicals: [
+        { name: "4H / Daily Chart Trend", signal: "Bullish" },
+        { name: "Seasonality Trend", signal: "Neutral" },
+      ],
+      "Institutional Activity": [
+        { name: "COT — GBP Net Positioning", signal: "Bullish", detail: "Long 55% / Short 45%" },
+        { name: "COT — AUD Net Positioning", signal: "Bullish", detail: "AUD shorts building" },
+      ],
+      "Economic Growth": [
+        { name: "UK GDP Growth QoQ", signal: "Neutral" },
+        { name: "AU GDP Growth QoQ", signal: "Bearish" },
+      ],
+      Inflation: [
+        { name: "UK CPI YoY", signal: "Bullish" },
+        { name: "AU CPI YoY", signal: "Neutral" },
+      ],
+      "Jobs Market": [
+        { name: "UK Unemployment Rate", signal: "Neutral" },
+        { name: "AU Employment Change", signal: "Bearish" },
+      ],
+    },
+  },
+  AUDUSD: {
+    label: "AUDUSD", name: "Australian Dollar / U.S. Dollar", group: "FOREX",
+    categories: {
+      Technicals: [
+        { name: "4H / Daily Chart Trend", signal: "Bearish" },
+        { name: "Seasonality Trend", signal: "Neutral" },
+      ],
+      "Institutional Activity": [
+        { name: "COT — AUD Net Positioning", signal: "Bearish", detail: "Long 39% / Short 61%" },
+      ],
+      "Economic Growth": [
+        { name: "AU GDP Growth QoQ", signal: "Bearish" },
+        { name: "China PMI (proxy demand)", signal: "Neutral" },
+      ],
+      Inflation: [
+        { name: "AU CPI YoY", signal: "Neutral" },
+        { name: "US CPI YoY", signal: "Bullish", detail: "3.5% vs 3.8% forecast" },
+      ],
+      "Jobs Market": [
+        { name: "AU Employment Change", signal: "Bearish" },
+        { name: "US Non-Farm Payroll", signal: "Bullish", detail: "57k vs 114k forecast" },
+      ],
+    },
+  },
+  EURNZD: {
+    label: "EURNZD", name: "Euro / New Zealand Dollar", group: "FOREX",
+    categories: {
+      Technicals: [
+        { name: "4H / Daily Chart Trend", signal: "Bullish" },
+        { name: "Seasonality Trend", signal: "Bullish" },
+      ],
+      "Institutional Activity": [
+        { name: "COT — EUR Net Positioning", signal: "Neutral" },
+        { name: "COT — NZD Net Positioning", signal: "Bearish", detail: "NZD shorts building" },
+      ],
+      "Economic Growth": [
+        { name: "EU GDP Growth QoQ", signal: "Bearish", detail: "0.10% vs 0.30% forecast" },
+        { name: "NZ GDP Growth QoQ", signal: "Bearish" },
+      ],
+      Inflation: [
+        { name: "EU CPI YoY", signal: "Neutral", detail: "2.4% vs 2.4% forecast" },
+        { name: "NZ CPI YoY", signal: "Neutral" },
+      ],
+      "Jobs Market": [
+        { name: "EU Unemployment Rate", signal: "Neutral" },
+      ],
+    },
+  },
+  EURUSD: {
+    label: "EURUSD", name: "Euro / U.S. Dollar", group: "FOREX",
+    categories: {
+      Technicals: [
+        { name: "4H / Daily Chart Trend", signal: "Neutral" },
+        { name: "Seasonality Trend", signal: "Bearish" },
+      ],
+      "Institutional Activity": [
+        { name: "COT — EUR Net Positioning", signal: "Bearish", detail: "Long 41% / Short 59%" },
+      ],
+      "Economic Growth": [
+        { name: "EU GDP Growth QoQ", signal: "Bearish", detail: "0.10% vs 0.30% forecast" },
+        { name: "US GDP Growth QoQ", signal: "Bullish", detail: "1.50% vs 2.10% forecast" },
+      ],
+      Inflation: [
+        { name: "EU CPI YoY", signal: "Neutral", detail: "2.4% vs 2.4% forecast" },
+        { name: "US CPI YoY", signal: "Bullish", detail: "3.5% vs 3.8% forecast" },
+      ],
+      "Jobs Market": [
+        { name: "US Non-Farm Payroll", signal: "Bullish", detail: "57k vs 114k forecast" },
+      ],
+    },
+  },
+  GBPUSD: {
+    label: "GBPUSD", name: "British Pound / U.S. Dollar", group: "FOREX",
+    categories: {
+      Technicals: [
+        { name: "4H / Daily Chart Trend", signal: "Bullish" },
+        { name: "Seasonality Trend", signal: "Neutral" },
+      ],
+      "Institutional Activity": [
+        { name: "COT — GBP Net Positioning", signal: "Bullish", detail: "Long 55% / Short 45%" },
+      ],
+      "Economic Growth": [
+        { name: "UK GDP Growth QoQ", signal: "Neutral" },
+        { name: "US GDP Growth QoQ", signal: "Bullish", detail: "1.50% vs 2.10% forecast" },
+      ],
+      Inflation: [
+        { name: "UK CPI YoY", signal: "Bullish" },
+        { name: "US CPI YoY", signal: "Bullish", detail: "3.5% vs 3.8% forecast" },
+      ],
+      "Jobs Market": [
+        { name: "UK Unemployment Rate", signal: "Neutral" },
+        { name: "US Non-Farm Payroll", signal: "Bullish", detail: "57k vs 114k forecast" },
+      ],
+    },
+  },
+};
+
+const SIGNAL_VALUE = { Bullish: 1, Neutral: 0, Bearish: -1 };
+const SIGNAL_COLOR = { Bullish: "#3B82F6", Bearish: "#EF4444", Neutral: "#4B5563" };
+
+function scoreLabel(score) {
+  if (score >= 6) return "Very Bullish";
+  if (score >= 2) return "Bullish";
+  if (score > -2) return "Neutral";
+  if (score > -6) return "Bearish";
+  return "Very Bearish";
+}
+
+function categoryScore(items) {
+  return items.reduce((s, i) => s + SIGNAL_VALUE[i.signal], 0);
+}
+
+function jitterSignal(signal) {
+  const r = Math.random();
+  if (r < 0.18) {
+    const options = ["Bullish", "Neutral", "Bearish"].filter((s) => s !== signal);
+    return options[Math.floor(Math.random() * options.length)];
+  }
+  return signal;
+}
+
+function Gauge({ score, max }) {
+  const clamped = Math.max(-max, Math.min(max, score));
+  const angle = (clamped / max) * 90;
+  return (
+    <div className="gauge-wrap">
+      <svg viewBox="0 0 200 110" className="gauge-svg">
+        <defs>
+          <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#EF4444" />
+            <stop offset="50%" stopColor="#4B5563" />
+            <stop offset="100%" stopColor="#3B82F6" />
+          </linearGradient>
+        </defs>
+        <path d="M 15 100 A 85 85 0 0 1 185 100" fill="none" stroke="url(#gaugeGrad)" strokeWidth="14" strokeLinecap="round" opacity="0.85" />
+        <g transform={`rotate(${angle} 100 100)`}>
+          <line x1="100" y1="100" x2="100" y2="28" stroke="#FFB000" strokeWidth="3" className="needle" />
+          <circle cx="100" cy="100" r="6" fill="#FFB000" />
+        </g>
+      </svg>
+      <div className="gauge-score">{score > 0 ? `+${score}` : score}</div>
+      <div className="gauge-label">{scoreLabel(score)}</div>
+    </div>
+  );
+}
+
+function Pill({ signal }) {
+  return <span className="pill" style={{ background: SIGNAL_COLOR[signal] }}>{signal}</span>;
+}
+
+function MacroScorecard() {
+  const [assetKey, setAssetKey] = useState("XAUUSD");
+  const [data, setData] = useState(() => JSON.parse(JSON.stringify(ASSETS)));
+  const [lastUpdated, setLastUpdated] = useState(new Date());
+  const [pulse, setPulse] = useState(false);
+  const [liveStatus, setLiveStatus] = useState(null);
+
+  const asset = data[assetKey];
+
+  useEffect(() => {
+    if (!BACKEND_URL || !LIVE_ASSETS.includes(assetKey)) {
+      setLiveStatus(null);
+      return;
+    }
+    let cancelled = false;
+    setLiveStatus("loading");
+    fetch(`${BACKEND_URL}/api/scorecard?asset=${assetKey}`)
+      .then((r) => r.json())
+      .then((json) => {
+        if (cancelled) return;
+        if (json.live) {
+          setData((prev) => {
+            const next = JSON.parse(JSON.stringify(prev));
+            Object.entries(json.categories).forEach(([catName, items]) => {
+              next[assetKey].categories[catName] = items;
+            });
+            return next;
+          });
+          setLiveStatus("live");
+          setLastUpdated(new Date());
+        } else {
+          setLiveStatus("error");
+        }
+      })
+      .catch(() => { if (!cancelled) setLiveStatus("error"); });
+    return () => { cancelled = true; };
+  }, [assetKey]);
+
+  const categoryScores = useMemo(() => {
+    const out = {};
+    Object.entries(asset.categories).forEach(([name, items]) => { out[name] = categoryScore(items); });
+    return out;
+  }, [asset]);
+
+  const overallScore = useMemo(() => Object.values(categoryScores).reduce((s, v) => s + v, 0), [categoryScores]);
+  const maxOverall = useMemo(() => Object.values(asset.categories).reduce((s, items) => s + items.length, 0), [asset]);
+
+  const simulateRefresh = useCallback(() => {
+    setData((prev) => {
+      const next = JSON.parse(JSON.stringify(prev));
+      Object.keys(next[assetKey].categories).forEach((catName) => {
+        next[assetKey].categories[catName] = next[assetKey].categories[catName].map((item) => ({
+          ...item, signal: jitterSignal(item.signal),
+        }));
+      });
+      return next;
+    });
+    setLastUpdated(new Date());
+    setPulse(true);
+    setTimeout(() => setPulse(false), 700);
+  }, [assetKey]);
+
+  return (
+    <div className="term-root">
+      <style>{`
+        .term-root { min-height: 100vh; background: #000000; color: #D7DBE3; font-family: 'Inter', sans-serif; padding: 20px 16px 48px; position: relative; overflow-x: hidden; }
+        .term-root::before { content: ""; position: fixed; inset: 0; pointer-events: none; background: repeating-linear-gradient(to bottom, rgba(255,176,0,0.015) 0px, rgba(255,176,0,0.015) 1px, transparent 1px, transparent 3px); z-index: 1; }
+        .term-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; position: relative; z-index: 2; }
+        .term-title { font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 0.18em; color: #FFB000; text-transform: uppercase; }
+        .term-sub { font-size: 11px; color: #5B6472; margin-top: 2px; font-family: 'JetBrains Mono', monospace; }
+        .demo-banner { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #FFB000; border: 1px solid rgba(255,176,0,0.35); background: rgba(255,176,0,0.06); padding: 8px 12px; border-radius: 4px; margin-bottom: 18px; line-height: 1.5; position: relative; z-index: 2; }
+        .group-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.15em; color: #5B6472; margin: 12px 0 6px; position: relative; z-index: 2; }
+        .asset-row { display: flex; gap: 8px; margin-bottom: 4px; position: relative; z-index: 2; flex-wrap: wrap; }
+        .asset-btn { font-family: 'JetBrains Mono', monospace; font-size: 12px; padding: 7px 14px; border-radius: 4px; border: 1px solid #1E1E1E; background: #0A0A0A; color: #8891A0; cursor: pointer; transition: all 0.15s ease; }
+        .asset-btn.active { border-color: #FFB000; color: #FFB000; background: rgba(255,176,0,0.08); }
+        .panel { background: #0A0A0A; border: 1px solid #1E1E1E; border-radius: 8px; padding: 18px; margin-bottom: 14px; position: relative; z-index: 2; }
+        .overall-panel { display: flex; flex-direction: column; align-items: center; text-align: center; margin-top: 18px; }
+        .overall-name { font-family: 'JetBrains Mono', monospace; font-size: 15px; color: #E5E7EB; letter-spacing: 0.04em; }
+        .overall-ticker { font-size: 11px; color: #5B6472; font-family: 'JetBrains Mono', monospace; margin-bottom: 8px; }
+        .gauge-wrap { display: flex; flex-direction: column; align-items: center; }
+        .gauge-svg { width: 220px; height: 122px; }
+        .needle { transition: transform 0.6s cubic-bezier(.4,1.6,.4,1); filter: drop-shadow(0 0 4px rgba(255,176,0,0.8)); }
+        .gauge-score { font-family: 'JetBrains Mono', monospace; font-size: 28px; font-weight: 700; color: #FFB000; margin-top: -10px; }
+        .gauge-label { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #8891A0; letter-spacing: 0.08em; text-transform: uppercase; }
+        .refresh-btn { margin-top: 14px; font-family: 'JetBrains Mono', monospace; font-size: 12px; padding: 9px 18px; border-radius: 4px; border: 1px solid #FFB000; background: transparent; color: #FFB000; cursor: pointer; letter-spacing: 0.05em; }
+        .refresh-btn:active { transform: scale(0.97); }
+        .refresh-btn.pulse { animation: pulseGlow 0.7s ease; }
+        @keyframes pulseGlow { 0% { box-shadow: 0 0 0 0 rgba(255,176,0,0.5); } 100% { box-shadow: 0 0 0 12px rgba(255,176,0,0); } }
+        .updated-line { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #4B5563; margin-top: 8px; }
+        .cat-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .cat-name { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #E5E7EB; letter-spacing: 0.03em; }
+        .cat-score { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; }
+        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-top: 1px solid #1A1E2A; gap: 10px; }
+        .item-name { font-size: 12.5px; color: #B4BAC5; }
+        .item-detail { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #5B6472; margin-top: 2px; }
+        .pill { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; color: #0B0E14; padding: 3px 9px; border-radius: 3px; letter-spacing: 0.03em; white-space: nowrap; }
+        .footer-note { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #4B5563; text-align: center; margin-top: 20px; line-height: 1.6; position: relative; z-index: 2; }
+      `}</style>
+
+      <div className="term-header">
+        <div>
+          <div className="term-title">▲ Macro Scorecard</div>
+          <div className="term-sub">edgefinder-style · multi-factor</div>
+        </div>
+      </div>
+
+      <div className="demo-banner">
+        {liveStatus === "live"
+          ? "🟢 LIVE — Institutional Activity, Economic Growth, Inflation, and Jobs Market are pulling real data. Technicals stays manual."
+          : liveStatus === "loading"
+          ? "⏳ Connecting to live data…"
+          : liveStatus === "error"
+          ? "⚠️ Couldn't reach the backend — showing demo data for this asset."
+          : "DEMO MODE — sample data for this asset."}
+      </div>
+
+      {GROUPS.map((g) => (
+        <div key={g}>
+          <div className="group-label">{g}</div>
+          <div className="asset-row">
+            {Object.entries(data).filter(([, a]) => a.group === g).map(([key, a]) => (
+              <button key={key} className={"asset-btn" + (key === assetKey ? " active" : "")} onClick={() => setAssetKey(key)}>
+                {a.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      ))}
+
+      <div className="panel overall-panel">
+        <div className="overall-name">{asset.name}</div>
+        <div className="overall-ticker">{asset.label}</div>
+        <Gauge score={overallScore} max={Math.max(maxOverall, 1)} />
+        <button className={"refresh-btn" + (pulse ? " pulse" : "")} onClick={simulateRefresh}>⟳ Simulate update</button>
+        <div className="updated-line">last updated {lastUpdated.toLocaleTimeString()}</div>
+      </div>
+
+      {Object.entries(asset.categories).map(([catName, items]) => {
+        const sc = categoryScores[catName];
+        const color = sc > 0 ? "#3B82F6" : sc < 0 ? "#EF4444" : "#8891A0";
+        return (
+          <div className="panel" key={catName}>
+            <div className="cat-header">
+              <div className="cat-name">{catName}</div>
+              <div className="cat-score" style={{ color }}>{sc > 0 ? `+${sc}` : sc} · {scoreLabel(sc)}</div>
+            </div>
+            {items.map((item, i) => (
+              <div className="item-row" key={i}>
+                <div>
+                  <div className="item-name">{item.name}</div>
+                  {item.detail && <div className="item-detail">{item.detail}</div>}
+                </div>
+                <Pill signal={item.signal} />
+              </div>
+            ))}
+          </div>
+        );
+      })}
+
+      <div className="footer-note">
+        Gold, Silver, Oil, and DXY pull real data. Others are still sample data.
+      </div>
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<MacroScorecard />);
+</script>
+</body>
+</html>
