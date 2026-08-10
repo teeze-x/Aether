@@ -1,24 +1,17 @@
 // api/scorecard.js
-// Serverless function (deploy on Vercel) that builds a macro scorecard
-// using real FRED economic data + real CFTC COT data (via FuturesBench's
-// free feed). Assets not yet covered by a free data source return
-// live: false so the frontend knows to keep showing demo data for them.
-
 const FRED_BASE = "https://api.stlouisfed.org/fred/series/observations";
 const COT_URL = "https://futuresbench.com/api/v1/latest.json";
 
-// FRED series used to build the Economic Growth / Inflation / Jobs categories
 const SERIES = {
-  gdp: "A191RL1Q225SBEA",  // Real GDP growth, QoQ annualized %
-  sentiment: "UMCSENT",    // U. Michigan consumer sentiment index
-  cpi: "CPIAUCSL",         // CPI index (monthly) -> we compute YoY % ourselves
-  dgs2: "DGS2",            // 2-year Treasury yield
-  payems: "PAYEMS",        // Nonfarm payrolls level (thousands) -> MoM change
-  unrate: "UNRATE",        // Unemployment rate %
-  claims: "ICSA",          // Initial jobless claims, weekly
+  gdp: "A191RL1Q225SBEA",
+  sentiment: "UMCSENT",
+  cpi: "CPIAUCSL",
+  dgs2: "DGS2",
+  payems: "PAYEMS",
+  unrate: "UNRATE",
+  claims: "ICSA",
 };
 
-// Which COT market slug (on FuturesBench) matches which asset
 const COT_SLUG = {
   XAUUSD: "gold",
   XAGUSD: "silver",
@@ -26,12 +19,8 @@ const COT_SLUG = {
   DXY: "us_dollar_index",
 };
 
-// Assets with a full live build right now. Everything else stays demo.
 const LIVE_ASSETS = ["XAUUSD", "XAGUSD", "USOIL", "DXY"];
 
-// Polarity: does "stronger" US macro data help or hurt this asset?
-// +1 = behaves like the US dollar (strong data -> bullish)
-// -1 = behaves like a safe haven / inverse-dollar asset (strong data -> bearish)
 const POLARITY = {
   XAUUSD: -1,
   XAGUSD: -1,
@@ -49,8 +38,6 @@ async function fredSeries(seriesId, apiKey) {
     .map((o) => ({ date: o.date, value: parseFloat(o.value) }));
 }
 
-// diff > 0 means the number went up since the prior reading.
-// polarity tells us whether "up" is good or bad for this asset.
 function directionSignal(latest, prior, polarity) {
   if (latest === undefined || latest === null || prior === undefined || prior === null) return "Neutral";
   const diff = latest - prior;
@@ -78,7 +65,6 @@ async function buildEconomicCategories(apiKey, polarity) {
 
   const cpiNow = cpiYoY(cpi, 0);
   const cpiPrev = cpiYoY(cpi, 1);
-
   const payemsDiff = payems.length >= 2 ? payems[0].value - payems[1].value : null;
   const payemsPrevDiff = payems.length >= 3 ? payems[1].value - payems[2].value : null;
 
@@ -134,13 +120,11 @@ async function buildCOTCategory(slug, polarity) {
     const json = await res.json();
     const market = json.markets?.[slug];
     if (!market) throw new Error("slug not found in COT feed");
-
     const net = market.net_noncommercial ?? market.net_nonco ?? market.net ?? 0;
     let signal = net === 0 ? "Neutral" : net > 0 ? "Bullish" : "Bearish";
     if (polarity !== 1 && signal !== "Neutral") {
       signal = signal === "Bullish" ? "Bearish" : "Bullish";
     }
-
     return {
       "Institutional Activity": [
         {
@@ -160,6 +144,16 @@ async function buildCOTCategory(slug, polarity) {
 }
 
 export default async function handler(req, res) {
+  // Allow frontend to call this backend
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  if (req.method === "OPTIONS") {
+    res.status(200).end();
+    return;
+  }
+
   const { asset } = req.query;
   const apiKey = process.env.FRED_API_KEY;
 
@@ -167,6 +161,7 @@ export default async function handler(req, res) {
     res.status(200).json({ live: false, reason: "This asset isn't wired to live data yet." });
     return;
   }
+
   if (!apiKey) {
     res.status(500).json({ live: false, reason: "Missing FRED_API_KEY environment variable on the server." });
     return;
