@@ -32,19 +32,26 @@ const ASSETS = {
         { name: "4H / Daily Chart Trend", signal: "Bullish" },
         { name: "Seasonality Trend", signal: "Bullish" },
       ],
-      "Institutional Activity": [{ name: "COT — Net Positioning (Managed Money)", signal: "Neutral", previous: "—", current: "—" }],
+      "Institutional Activity": [
+        { name: "COT — Net Positioning (Managed Money)", signal: "Neutral", previous: "—", current: "—", change: "—" },
+        { name: "COT — Latest Buys/Sells (weekly change)", signal: "Neutral", previous: "—", current: "—", change: "—" },
+      ],
       "Economic Growth": [
-        { name: "GDP Growth (QoQ annualized)", signal: "Neutral", previous: "—", current: "—" },
-        { name: "Consumer Sentiment (U. Michigan)", signal: "Neutral", previous: "—", current: "—" },
+        { name: "GDP Growth (QoQ annualized)", signal: "Neutral", previous: "—", current: "—", change: "—" },
+        { name: "Consumer Sentiment (U. Michigan)", signal: "Neutral", previous: "—", current: "—", change: "—" },
+        { name: "Retail Sales MoM", signal: "Neutral", previous: "—", current: "—", change: "—" },
       ],
       Inflation: [
-        { name: "CPI YoY", signal: "Neutral", previous: "—", current: "—" },
-        { name: "2Yr Treasury Yield", signal: "Neutral", previous: "—", current: "—" },
+        { name: "CPI YoY", signal: "Neutral", previous: "—", current: "—", change: "—" },
+        { name: "PPI YoY", signal: "Neutral", previous: "—", current: "—", change: "—" },
+        { name: "PCE YoY", signal: "Neutral", previous: "—", current: "—", change: "—" },
+        { name: "2Yr Treasury Yield", signal: "Neutral", previous: "—", current: "—", change: "—" },
       ],
       "Jobs Market": [
-        { name: "Non-Farm Payroll (MoM change)", signal: "Neutral", previous: "—", current: "—" },
-        { name: "Unemployment Rate", signal: "Neutral", previous: "—", current: "—" },
-        { name: "Weekly Jobless Claims", signal: "Neutral", previous: "—", current: "—" },
+        { name: "Non-Farm Payroll (MoM change)", signal: "Neutral", previous: "—", current: "—", change: "—" },
+        { name: "Unemployment Rate", signal: "Neutral", previous: "—", current: "—", change: "—" },
+        { name: "Weekly Jobless Claims", signal: "Neutral", previous: "—", current: "—", change: "—" },
+        { name: "JOLTS Job Openings", signal: "Neutral", previous: "—", current: "—", change: "—" },
       ],
     },
   },
@@ -55,19 +62,26 @@ const ASSETS = {
         { name: "4H / Daily Chart Trend", signal: "Bullish" },
         { name: "Gold/Silver Ratio", signal: "Bullish" },
       ],
-      "Institutional Activity": [{ name: "COT — Net Positioning (Managed Money)", signal: "Neutral", previous: "—", current: "—" }],
+      "Institutional Activity": [
+        { name: "COT — Net Positioning (Managed Money)", signal: "Neutral", previous: "—", current: "—", change: "—" },
+        { name: "COT — Latest Buys/Sells (weekly change)", signal: "Neutral", previous: "—", current: "—", change: "—" },
+      ],
       "Economic Growth": [
-        { name: "GDP Growth (QoQ annualized)", signal: "Neutral", previous: "—", current: "—" },
-        { name: "Consumer Sentiment (U. Michigan)", signal: "Neutral", previous: "—", current: "—" },
+        { name: "GDP Growth (QoQ annualized)", signal: "Neutral", previous: "—", current: "—", change: "—" },
+        { name: "Consumer Sentiment (U. Michigan)", signal: "Neutral", previous: "—", current: "—", change: "—" },
+        { name: "Retail Sales MoM", signal: "Neutral", previous: "—", current: "—", change: "—" },
       ],
       Inflation: [
-        { name: "CPI YoY", signal: "Neutral", previous: "—", current: "—" },
-        { name: "2Yr Treasury Yield", signal: "Neutral", previous: "—", current: "—" },
+        { name: "CPI YoY", signal: "Neutral", previous: "—", current: "—", change: "—" },
+        { name: "PPI YoY", signal: "Neutral", previous: "—", current: "—", change: "—" },
+        { name: "PCE YoY", signal: "Neutral", previous: "—", current: "—", change: "—" },
+        { name: "2Yr Treasury Yield", signal: "Neutral", previous: "—", current: "—", change: "—" },
       ],
       "Jobs Market": [
-        { name: "Non-Farm Payroll (MoM change)", signal: "Neutral", previous: "—", current: "—" },
-        { name: "Unemployment Rate", signal: "Neutral", previous: "—", current: "—" },
-        { name: "Weekly Jobless Claims", signal: "Neutral", previous: "—", current: "—" },
+        { name: "Non-Farm Payroll (MoM change)", signal: "Neutral", previous: "—", current: "—", change: "—" },
+        { name: "Unemployment Rate", signal: "Neutral", previous: "—", current: "—", change: "—" },
+        { name: "Weekly Jobless Claims", signal: "Neutral", previous: "—", current: "—", change: "—" },
+        { name: "JOLTS Job Openings", signal: "Neutral", previous: "—", current: "—", change: "—" },
       ],
     },
   },
@@ -78,19 +92,26 @@ const ASSETS = {
         { name: "4H / Daily Chart Trend", signal: "Bullish" },
         { name: "Seasonality Trend", signal: "Neutral" },
       ],
-      "Institutional Activity": [{ name: "COT — Net Positioning (Managed Money)", signal: "Neutral", previous: "—", current: "—" }],
+      "Institutional Activity": [
+        { name: "COT — Net Positioning (Managed Money)", signal: "Neutral", previous: "—", current: "—", change: "—" },
+        { name: "COT — Latest Buys/Sells (weekly change)", signal: "Neutral", previous: "—", current: "—", change: "—" },
+      ],
       "Economic Growth": [
-        { name: "GDP Growth (QoQ annualized)", signal: "Neutral", previous: "—", current: "—" },
-        { name: "Consumer Sentiment (U. Michigan)", signal: "Neutral", previous: "—", current: "—" },
+        { name: "GDP Growth (QoQ annualized)", signal: "Neutral", previous: "—", current: "—", change: "—" },
+        { name: "Consumer Sentiment (U. Michigan)", signal: "Neutral", previous: "—", current: "—", change: "—" },
+        { name: "Retail Sales MoM", signal: "Neutral", previous: "—", current: "—", change: "—" },
       ],
       Inflation: [
-        { name: "CPI YoY", signal: "Neutral", previous: "—", current: "—" },
-        { name: "2Yr Treasury Yield", signal: "Neutral", previous: "—", current: "—" },
+        { name: "CPI YoY", signal: "Neutral", previous: "—", current: "—", change: "—" },
+        { name: "PPI YoY", signal: "Neutral", previous: "—", current: "—", change: "—" },
+        { name: "PCE YoY", signal: "Neutral", previous: "—", current: "—", change: "—" },
+        { name: "2Yr Treasury Yield", signal: "Neutral", previous: "—", current: "—", change: "—" },
       ],
       "Jobs Market": [
-        { name: "Non-Farm Payroll (MoM change)", signal: "Neutral", previous: "—", current: "—" },
-        { name: "Unemployment Rate", signal: "Neutral", previous: "—", current: "—" },
-        { name: "Weekly Jobless Claims", signal: "Neutral", previous: "—", current: "—" },
+        { name: "Non-Farm Payroll (MoM change)", signal: "Neutral", previous: "—", current: "—", change: "—" },
+        { name: "Unemployment Rate", signal: "Neutral", previous: "—", current: "—", change: "—" },
+        { name: "Weekly Jobless Claims", signal: "Neutral", previous: "—", current: "—", change: "—" },
+        { name: "JOLTS Job Openings", signal: "Neutral", previous: "—", current: "—", change: "—" },
       ],
     },
   },
@@ -101,19 +122,26 @@ const ASSETS = {
         { name: "4H / Daily Chart Trend", signal: "Neutral" },
         { name: "Seasonality Trend", signal: "Bearish" },
       ],
-      "Institutional Activity": [{ name: "COT — Net Positioning (Managed Money)", signal: "Neutral", previous: "—", current: "—" }],
+      "Institutional Activity": [
+        { name: "COT — Net Positioning (Managed Money)", signal: "Neutral", previous: "—", current: "—", change: "—" },
+        { name: "COT — Latest Buys/Sells (weekly change)", signal: "Neutral", previous: "—", current: "—", change: "—" },
+      ],
       "Economic Growth": [
-        { name: "GDP Growth (QoQ annualized)", signal: "Neutral", previous: "—", current: "—" },
-        { name: "Consumer Sentiment (U. Michigan)", signal: "Neutral", previous: "—", current: "—" },
+        { name: "GDP Growth (QoQ annualized)", signal: "Neutral", previous: "—", current: "—", change: "—" },
+        { name: "Consumer Sentiment (U. Michigan)", signal: "Neutral", previous: "—", current: "—", change: "—" },
+        { name: "Retail Sales MoM", signal: "Neutral", previous: "—", current: "—", change: "—" },
       ],
       Inflation: [
-        { name: "CPI YoY", signal: "Neutral", previous: "—", current: "—" },
-        { name: "2Yr Treasury Yield", signal: "Neutral", previous: "—", current: "—" },
+        { name: "CPI YoY", signal: "Neutral", previous: "—", current: "—", change: "—" },
+        { name: "PPI YoY", signal: "Neutral", previous: "—", current: "—", change: "—" },
+        { name: "PCE YoY", signal: "Neutral", previous: "—", current: "—", change: "—" },
+        { name: "2Yr Treasury Yield", signal: "Neutral", previous: "—", current: "—", change: "—" },
       ],
       "Jobs Market": [
-        { name: "Non-Farm Payroll (MoM change)", signal: "Neutral", previous: "—", current: "—" },
-        { name: "Unemployment Rate", signal: "Neutral", previous: "—", current: "—" },
-        { name: "Weekly Jobless Claims", signal: "Neutral", previous: "—", current: "—" },
+        { name: "Non-Farm Payroll (MoM change)", signal: "Neutral", previous: "—", current: "—", change: "—" },
+        { name: "Unemployment Rate", signal: "Neutral", previous: "—", current: "—", change: "—" },
+        { name: "Weekly Jobless Claims", signal: "Neutral", previous: "—", current: "—", change: "—" },
+        { name: "JOLTS Job Openings", signal: "Neutral", previous: "—", current: "—", change: "—" },
       ],
     },
   },
@@ -233,13 +261,17 @@ function MacroScorecard() {
         .cat-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
         .cat-name { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #E5E7EB; letter-spacing: 0.03em; }
         .cat-score { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 4px; letter-spacing: 0.03em; white-space: nowrap; }
-        .col-header { display: grid; grid-template-columns: 1fr 64px 64px 84px; gap: 12px; padding: 10px 0 6px; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; color: #4B5563; letter-spacing: 0.08em; text-transform: uppercase; }
+        .col-header { display: grid; grid-template-columns: 1fr 60px 60px 64px 84px; gap: 10px; padding: 10px 0 6px; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; color: #4B5563; letter-spacing: 0.08em; text-transform: uppercase; }
         .col-header span:not(:first-child) { text-align: right; }
-        .item-row { display: grid; grid-template-columns: 1fr 64px 64px 84px; align-items: center; padding: 10px 0; border-top: 1px solid #1A1E2A; gap: 12px; }
+        .item-row { display: grid; grid-template-columns: 1fr 60px 60px 64px 84px; align-items: center; padding: 10px 0; border-top: 1px solid #1A1E2A; gap: 10px; }
         .item-name { font-size: 12.5px; color: #E5E7EB; font-weight: 500; }
-        .item-prev, .item-curr { font-family: 'JetBrains Mono', monospace; font-size: 11px; text-align: right; white-space: nowrap; }
+        .item-prev, .item-curr, .item-change { font-family: 'JetBrains Mono', monospace; font-size: 11px; text-align: right; white-space: nowrap; }
         .item-prev { color: #6B7280; }
         .item-curr { color: #E5E7EB; font-weight: 600; }
+        .item-change { font-weight: 600; }
+        .item-change.up { color: #3B82F6; }
+        .item-change.down { color: #EF4444; }
+        .item-change.flat { color: #6B7280; }
         .pill { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; color: #0B0E14; padding: 4px 0; border-radius: 3px; letter-spacing: 0.03em; white-space: nowrap; text-align: center; width: 84px; justify-self: end; }
         .footer-note { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #4B5563; text-align: center; margin-top: 20px; line-height: 1.6; position: relative; z-index: 2; }
       `}</style>
@@ -289,17 +321,22 @@ function MacroScorecard() {
                 <span></span>
                 <span>Prev</span>
                 <span>Now</span>
+                <span>Change</span>
                 <span></span>
               </div>
             )}
-            {items.map((item, i) => (
-              <div className="item-row" key={i}>
-                <div className="item-name">{item.name}</div>
-                <div className="item-prev">{item.previous || ""}</div>
-                <div className="item-curr">{item.current || ""}</div>
-                <Pill signal={item.signal} />
-              </div>
-            ))}
+            {items.map((item, i) => {
+              const changeDir = (item.change || "").startsWith("+") ? "up" : (item.change || "").startsWith("-") ? "down" : "flat";
+              return (
+                <div className="item-row" key={i}>
+                  <div className="item-name">{item.name}</div>
+                  <div className="item-prev">{item.previous || ""}</div>
+                  <div className="item-curr">{item.current || ""}</div>
+                  <div className={`item-change ${changeDir}`}>{item.change && item.change !== "—" ? item.change : ""}</div>
+                  <Pill signal={item.signal} />
+                </div>
+              );
+            })}
           </div>
         );
       })}
