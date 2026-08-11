@@ -319,8 +319,8 @@ function MacroScorecard() {
             {hasNumbers && (
               <div className="col-header">
                 <span></span>
-                <span>Prev</span>
                 <span>Now</span>
+                <span>Prev</span>
                 <span>Change</span>
                 <span></span>
               </div>
@@ -330,8 +330,8 @@ function MacroScorecard() {
               return (
                 <div className="item-row" key={i}>
                   <div className="item-name">{item.name}</div>
-                  <div className="item-prev">{item.previous || ""}</div>
                   <div className="item-curr">{item.current || ""}</div>
+                  <div className="item-prev">{item.previous || ""}</div>
                   <div className={`item-change ${changeDir}`}>{item.change && item.change !== "—" ? item.change : ""}</div>
                   <Pill signal={item.signal} />
                 </div>
