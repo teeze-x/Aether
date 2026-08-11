@@ -73,41 +73,48 @@ async function buildEconomicCategories(apiKey, polarity) {
       {
         name: "GDP Growth (QoQ annualized)",
         signal: directionSignal(gdp[0]?.value, gdp[1]?.value, polarity),
-        detail: gdp[0] ? `${gdp[0].value}% latest (${gdp[0].date})` : "no data",
+        previous: gdp[1] ? `${gdp[1].value}%` : "—",
+        current: gdp[0] ? `${gdp[0].value}%` : "—",
       },
       {
         name: "Consumer Sentiment (U. Michigan)",
         signal: directionSignal(sentiment[0]?.value, sentiment[1]?.value, polarity),
-        detail: sentiment[0] ? `${sentiment[0].value} index` : "no data",
+        previous: sentiment[1] ? `${sentiment[1].value}` : "—",
+        current: sentiment[0] ? `${sentiment[0].value}` : "—",
       },
     ],
     Inflation: [
       {
         name: "CPI YoY",
         signal: directionSignal(cpiNow, cpiPrev, -polarity),
-        detail: cpiNow !== null ? `${cpiNow.toFixed(1)}% YoY` : "no data",
+        previous: cpiPrev !== null ? `${cpiPrev.toFixed(1)}%` : "—",
+        current: cpiNow !== null ? `${cpiNow.toFixed(1)}%` : "—",
       },
       {
         name: "2Yr Treasury Yield",
         signal: directionSignal(dgs2[0]?.value, dgs2[1]?.value, polarity),
-        detail: dgs2[0] ? `${dgs2[0].value}%` : "no data",
+        previous: dgs2[1] ? `${dgs2[1].value}%` : "—",
+        current: dgs2[0] ? `${dgs2[0].value}%` : "—",
       },
     ],
     "Jobs Market": [
       {
         name: "Non-Farm Payroll (MoM change)",
         signal: directionSignal(payemsDiff, payemsPrevDiff, polarity),
-        detail: payemsDiff !== null ? `${payemsDiff.toFixed(0)}k jobs added` : "no data",
+        previous: payemsPrevDiff !== null ? `${payemsPrevDiff.toFixed(0)}k` : "—",
+        current: payemsDiff !== null ? `${payemsDiff.toFixed(0)}k` : "—",
       },
       {
         name: "Unemployment Rate",
         signal: directionSignal(unrate[0]?.value, unrate[1]?.value, -polarity),
-        detail: unrate[0] ? `${unrate[0].value}%` : "no data",
+        previous: unrate[1] ? `${unrate[1].value}%` : "—",
+        current: unrate[0] ? `${unrate[0].value}%` : "—",
       },
       {
         name: "Weekly Jobless Claims",
         signal: directionSignal(claims[0]?.value, claims[1]?.value, -polarity),
-        detail: claims[0] ? `${claims[0].value} claims` : "no data",
+        previous: claims[1] ? `${claims[1].value}` : "—",
+        current: claims[0] ? `${claims[0].value}` : "—",
       },
     ],
   };
@@ -130,14 +137,15 @@ async function buildCOTCategory(slug, polarity) {
         {
           name: "COT — Net Positioning (Managed Money)",
           signal,
-          detail: `Net position: ${net}`,
+          previous: "—",
+          current: `${net}`,
         },
       ],
     };
   } catch (e) {
     return {
       "Institutional Activity": [
-        { name: "COT — Net Positioning", signal: "Neutral", detail: "data unavailable right now" },
+        { name: "COT — Net Positioning", signal: "Neutral", previous: "—", current: "no data" },
       ],
     };
   }
